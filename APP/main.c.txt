@@ -1,0 +1,52 @@
+
+#include "BUTTON_SEGMENT_SERVICE_LAYER.h"
+int main()
+{
+	uint8 segment1_value=0;
+	uint8 segment2_value=0;
+	uint8 segment3_value=0;
+	uint8 segment4_value=0;
+	uint8 mode_flag=0;
+
+	while(1)
+
+	{
+		while(mode_flag==counting_mode)
+		{
+			mode_flag= SEVENSEGEMTN_Digital_Clock_Counting(&segment1_value,&segment2_value,&segment3_value,&segment4_value,BUTTON4);
+		}
+		while(mode_flag==editable_mode_minutes_flashig)
+		{
+			mode_flag=SEVENSEGEMTN_Digital_Clock_Flashing(Seg1,&segment1_value,Seg2,&segment2_value,Seg3,&segment3_value,Seg4,&segment4_value,BUTTON4,BUTTON3,BUTTON2,BUTTON1);
+		}
+
+		while(mode_flag==editable_mode_hours_flashing)
+		{
+			mode_flag=SEVENSEGEMTN_Digital_Clock_Flashing(Seg3,&segment3_value,Seg4,&segment4_value,Seg1,&segment1_value,Seg2,&segment2_value,BUTTON4,BUTTON3,BUTTON2,BUTTON1);
+		}
+		while(mode_flag==editable_mode_increment_minutes)
+		{
+			SEVENSEGEMTN_Digital_Clock_Flashing_Increment(minutes,&segment1_value,&segment2_value);
+			mode_flag=SEVENSEGEMTN_Digital_Clock_Flashing(Seg1,&segment1_value,Seg2,&segment2_value,Seg3,&segment3_value,Seg4,&segment4_value,BUTTON4,BUTTON3,BUTTON2,BUTTON1);
+		}
+		while(mode_flag==editable_mode_increment_hours)
+		{
+
+			SEVENSEGEMTN_Digital_Clock_Flashing_Increment(hours,&segment3_value,&segment4_value);
+			mode_flag=SEVENSEGEMTN_Digital_Clock_Flashing(Seg3,&segment3_value,Seg4,&segment4_value,Seg1,&segment1_value,Seg2,&segment2_value,BUTTON4,BUTTON3,BUTTON2,BUTTON1);
+		}
+
+		while(mode_flag==editable_mode_decrment_minutes)
+		{
+			SEVENSEGEMTN_Digital_Clock_Flashing_Decrement(minutes,&segment1_value,&segment2_value);
+			mode_flag=SEVENSEGEMTN_Digital_Clock_Flashing(Seg1,&segment1_value,Seg2,&segment2_value,Seg3,&segment3_value,Seg4,&segment4_value,BUTTON4,BUTTON3,BUTTON2,BUTTON1);
+		}
+		while(mode_flag==editable_mode_decrment_hours	)
+		{
+			SEVENSEGEMTN_Digital_Clock_Flashing_Decrement(hours,&segment3_value,&segment4_value);
+			mode_flag=SEVENSEGEMTN_Digital_Clock_Flashing(Seg3,&segment3_value,Seg4,&segment4_value,Seg1,&segment1_value,Seg2,&segment2_value,BUTTON4,BUTTON3,BUTTON2,BUTTON1);
+		}
+
+	}
+}
+

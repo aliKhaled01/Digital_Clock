@@ -1,0 +1,43 @@
+/*
+ * BUTTON_SEGMENT_SERVICE_LAYER.h
+ *
+ *  Created on: Oct 4, 2021
+ *      Author: lenovo
+ */
+
+#ifndef BUTTON_SEGMENT_SERVICE_LAYER_H_
+#define BUTTON_SEGMENT_SERVICE_LAYER_H_
+#include "button.h"
+#include "SEVENSEGMENT.h"
+typedef enum
+{
+	counting_mode,
+	editable_mode_minutes_flashig 	,
+	editable_mode_hours_flashing 	,
+	editable_mode_increment_minutes ,
+	editable_mode_increment_hours   ,
+	editable_mode_decrment_minutes  ,
+	editable_mode_decrment_hours,
+	stay_current_mode
+
+}enClock_Current_Mode;
+typedef enum
+{
+	minutes,hours
+
+}enSEVENSEGEMTN_Digital_Clock_Minutes_Or_hours;
+uint8  SEVENSEGEMTN_Digital_Clock_Counting(uint8 *segment1_value,uint8*segment2_value,uint8* segment3_value,uint8*segment4_value,enBUTTON_NUMBER counting_to_flashing_button);
+/*
+ * Description:
+ 	 	 	 	 counting till the button edge
+ 	Output: no_of_edges
+
+ */
+
+uint8 SEVENSEGEMTN_Digital_Clock_Flashing(enSegNumber seg_flashing1,uint8 *seg_flashing1_value,enSegNumber seg_flashing2,uint8* seg_flashing2_value,enSegNumber seg_not_flashing1,uint8*seg_not_flashing1_value,enSegNumber seg_not_flashing2,uint8* seg_not_flashing2_value,enBUTTON_NUMBER flashing_to_counting_button,enBUTTON_NUMBER minutes_to_hours_flashing_button,enBUTTON_NUMBER increment_minutes_or_hours_button,enBUTTON_NUMBER decrement_minutes_or_hours_button);
+void SEVENSEGEMTN_Digital_Clock_Flashing_Increment(enSEVENSEGEMTN_Digital_Clock_Minutes_Or_hours increment_part,uint8* segment1_value,uint8* segment2_value);
+void SEVENSEGEMTN_Digital_Clock_Flashing_Decrement(enSEVENSEGEMTN_Digital_Clock_Minutes_Or_hours decrement_part,uint8* segment1_value,uint8* segment2_value);
+static void SEVENSEGMENT_Digital_Clock_Increment_While_counting(uint8 *segment1_value,uint8 *segment2_value,uint8 *segment3_value,uint8 *segment4_value);
+static uint8 SEVENSEGMENT_Digital_Clock_Determine_Next_Mode_While_Counting(enBUTTON_NUMBER counting_to_flashing_button);
+static uint8 SEVENSEGEMTN_Digital_Clock_Detrmine_Next_Mode_While_Flashing(enBUTTON_NUMBER flashing_to_counting_button,enBUTTON_NUMBER minutes_to_hours_flashing_button,enBUTTON_NUMBER increment_minutes_or_hours_button,enBUTTON_NUMBER decrement_minutes_or_hours_button);
+#endif /* BUTTON_SEGMENT_SERVICE_LAYER_H_ */

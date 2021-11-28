@@ -1,0 +1,273 @@
+/*
+ * BUTTON_SEGMENT_SERVICE_LAYER.c
+ *
+ *  Created on: Oct 4, 2021
+ *      Author: lenovo
+ */
+
+
+
+#include "clock.h"
+#include <util/delay.h>
+uint8  SEVENSEGEMTN_Digital_Clock_Counting(uint8 *segment1_value,uint8*segment2_value,uint8* segment3_value,uint8*segment4_value,enBUTTON_NUMBER counting_to_flashing_button)
+{
+	Seg_Init(Seg1);
+	Seg_Init(Seg2);
+	Seg_Init(Seg3);
+	Seg_Init(Seg4);
+	BUTTON_INIT(counting_to_flashing_button);
+	uint8 *p_to_seg1=segment1_value;
+	uint8 *p_to_seg2=segment2_value;
+	uint8 *p_to_seg3=segment3_value;
+	uint8 *p_to_seg4=segment4_value;
+	for(uint32 no_of_milleseconds_divided_by_20 =1;no_of_milleseconds_divided_by_20 <=3000;no_of_milleseconds_divided_by_20++)
+	{
+		uint8 ret = SEVENSEGMENT_Digital_Clock_Determine_Next_Mode_While_Counting(counting_to_flashing_button);
+		if(ret!=stay_current_mode)
+		{
+			return ret;
+		}
+		Seg_Write(Seg1,(*segment1_value));
+		_delay_ms(5);
+		Seg_Write(Seg2,(*segment2_value));
+		_delay_ms(5);
+		Seg_Write(Seg3,(*segment3_value));
+		_delay_ms(5);
+		Seg_Write(Seg4,(*segment4_value));
+		_delay_ms(5);
+
+	}
+	SEVENSEGMENT_Digital_Clock_Increment_While_counting(p_to_seg1,p_to_seg2,p_to_seg3,p_to_seg4);
+
+
+	return counting_mode;
+
+}
+static uint8 SEVENSEGMENT_Digital_Clock_Determine_Next_Mode_While_Counting(enBUTTON_NUMBER counting_to_flashing_button)
+{
+	if(BUTTON_Edge_Status(counting_to_flashing_button,FALLING)==ACTIVED)
+	{
+		return editable_mode_minutes_flashig;
+	}
+	return 	stay_current_mode;
+
+}
+static void SEVENSEGMENT_Digital_Clock_Increment_While_counting(uint8 *segment1_value,uint8 *segment2_value,uint8 *segment3_value,uint8 *segment4_value)
+{
+	if((*segment2_value)<6&&(*segment1_value)<9)
+	{
+		(*segment1_value)++;
+	}
+	else if((*segment2_value)<6&&(*segment1_value)==9)
+	{
+		(*segment1_value)=0;
+		(*segment2_value)++;
+	}
+	else if((*segment2_value)==6&&(*segment1_value)==0)
+	{
+		(*segment1_value)=0;
+		(*segment2_value)=0;
+		if((*segment4_value)<2&&(*segment3_value)<9)
+		{
+			(*segment3_value)++;
+		}
+		else if((*segment4_value)<2&&(*segment3_value)==9)
+		{
+			(*segment3_value)=0;
+			(*segment4_value)++;
+		}
+		else if((*segment4_value)==2&&(*segment3_value)<3)
+		{
+			(*segment3_value)++;
+		}
+		else if((*segment4_value)==2&&(*segment3_value)==3)
+		{
+			(*segment3_value)=0;
+			(*segment4_value)=0;
+		}
+	}
+}
+
+
+uint8 SEVENSEGEMTN_Digital_Clock_Flashing(enSegNumber seg_flashing1,uint8 *seg_flashing1_value,enSegNumber seg_flashing2,uint8* seg_flashing2_value,enSegNumber seg_not_flashing1,uint8*seg_not_flashing1_value,enSegNumber seg_not_flashing2,uint8* seg_not_flashing2_value,enBUTTON_NUMBER flashing_to_counting_button,enBUTTON_NUMBER minutes_to_hours_flashing_button,enBUTTON_NUMBER increment_minutes_or_hours_button,enBUTTON_NUMBER decrement_minutes_or_hours_button)
+{
+
+
+	BUTTON_INIT(decrement_minutes_or_hours_button);
+	BUTTON_INIT(increment_minutes_or_hours_button);
+	BUTTON_INIT(minutes_to_hours_flashing_button);
+	for(uint8 no_of_flashing_repeates=0; no_of_flashing_repeates<10	; no_of_flashing_repeates++ )
+	{
+		for(uint8 counting_time_per_20ms=0; counting_time_per_20ms<48;counting_time_per_20ms++)
+		{
+
+			Seg_Write(seg_flashing1,*seg_flashing1_value);
+			_delay_ms(5);
+			Seg_Write(seg_flashing2,*seg_flashing2_value);
+			_delay_ms(5);
+			Seg_Write(seg_not_flashing1,*seg_not_flashing1_value);
+			_delay_ms(5);
+			Seg_Write(seg_not_flashing2,*seg_not_flashing2_value);
+			_delay_ms(5);
+		}
+		Seg_Off(seg_flashing1);
+		Seg_Off(seg_flashing2);
+
+		for(uint8 counting_time_per_20ms=0; counting_time_per_20ms<48;counting_time_per_20ms++)
+		{
+			uint8 ret =SEVENSEGEMTN_Digital_Clock_Detrmine_Next_Mode_While_Flashing( flashing_to_counting_button, minutes_to_hours_flashing_button,increment_minutes_or_hours_button, decrement_minutes_or_hours_button);
+			if(ret!=stay_current_mode)
+			{
+				return ret;
+			}
+			Seg_Write(seg_not_flashing1,*seg_not_flashing1_value);
+			_delay_ms(10);
+			Seg_Write(seg_not_flashing2,*seg_not_flashing2_value);
+			_delay_ms(10);
+
+
+		}
+	}
+
+
+	return counting_mode;
+}
+static uint8 SEVENSEGEMTN_Digital_Clock_Detrmine_Next_Mode_While_Flashing(enBUTTON_NUMBER flashing_to_counting_button,enBUTTON_NUMBER minutes_to_hours_flashing_button,enBUTTON_NUMBER increment_minutes_or_hours_button,enBUTTON_NUMBER decrement_minutes_or_hours_button)
+{
+	uint8 static which_part_is_flashing = minutes;
+	if((BUTTON_Edge_Status(flashing_to_counting_button,FALLING)==ACTIVED))
+	{
+		return counting_mode ;
+	}
+	else if((BUTTON_Edge_Status(minutes_to_hours_flashing_button,FALLING)==ACTIVED))
+	{
+
+
+		if(which_part_is_flashing==minutes)
+		{
+			which_part_is_flashing = hours;
+			return editable_mode_hours_flashing;
+
+		}
+		else if(which_part_is_flashing==hours)
+		{
+			which_part_is_flashing = minutes;
+			return editable_mode_minutes_flashig ;
+		}
+
+	}
+	else if((BUTTON_Edge_Status(increment_minutes_or_hours_button,FALLING)==ACTIVED))
+	{
+
+		if(which_part_is_flashing==minutes)
+		{
+			return editable_mode_increment_minutes ;
+		}
+		else if (which_part_is_flashing==hours)
+		{
+			return editable_mode_increment_hours ;
+		}
+
+	}
+
+
+	else if((BUTTON_Edge_Status(decrement_minutes_or_hours_button,FALLING)==ACTIVED))
+	{
+		if(which_part_is_flashing==minutes)  //minutes flashing
+		{
+
+			return editable_mode_decrment_minutes;
+
+		}
+		else if(which_part_is_flashing==hours)  //hours flashing
+		{
+			return  editable_mode_decrment_hours;
+		}
+	}
+	return stay_current_mode;
+}
+void SEVENSEGEMTN_Digital_Clock_Flashing_Increment(enSEVENSEGEMTN_Digital_Clock_Minutes_Or_hours increment_part,uint8* segment1_value,uint8* segment2_value)
+
+{
+	switch(increment_part)
+	{
+	case minutes:
+		if(*segment1_value<9&&*segment2_value<6)
+		{
+			(*segment1_value)++;
+		}
+		else if(*segment1_value==9&&*segment2_value<6)
+		{
+			(*segment1_value)=0;
+			(*segment2_value)++;
+		}
+		else if(*segment1_value==0&&*segment2_value==6)
+		{
+			(*segment1_value)=0;
+			(*segment2_value)=0;
+
+		}
+		break;
+	case hours:
+		if(*segment1_value<9&&*segment2_value<2)
+		{
+			(*segment1_value)++;
+		}
+		else if(*segment1_value==9&&*segment2_value<2)
+		{
+			(*segment1_value)=0;
+			(*segment2_value)++;
+		}
+		else if(*segment2_value==2&&*segment1_value<3)
+		{
+			(*segment1_value)++;
+		}
+		else if(*segment1_value==3&&*segment2_value==2)
+		{
+			(*segment2_value)=0;
+			(*segment1_value)=0;
+		}
+		break;
+	}
+}
+
+
+void SEVENSEGEMTN_Digital_Clock_Flashing_Decrement(enSEVENSEGEMTN_Digital_Clock_Minutes_Or_hours decrement_part,uint8* segment1_value,uint8* segment2_value)
+{
+	switch(decrement_part)
+	{
+	case minutes:
+		if(*segment1_value==0&&*segment2_value>0)
+		{
+			(*segment1_value)=9;
+			(*segment2_value)--;
+		}
+		else if(*segment1_value>0)
+		{
+			(*segment1_value)--;
+		}
+		else if(*segment1_value==0&&*segment2_value==0)
+		{
+			(*segment1_value)=0;
+			(*segment2_value)=6;
+		}
+		break;
+
+	case hours :
+		if(*segment1_value==0&&*segment2_value>0)
+		{
+			(*segment1_value)=9;
+			(*segment2_value)--;
+		}
+		else if((*segment1_value)>0)
+		{
+			(*segment1_value)--;
+		}
+		else if(*segment1_value==0&&*segment2_value==0)
+		{
+			(*segment1_value)=3;
+			(*segment2_value)=2;
+		}
+		break;
+	}
+}
