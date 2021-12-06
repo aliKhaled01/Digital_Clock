@@ -1,5 +1,5 @@
 
-#include "BUTTON_SEGMENT_SERVICE_LAYER.h"
+#include "clock.h"
 int main()
 {
 	uint8 segment1_value=0;
